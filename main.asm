@@ -28,9 +28,10 @@ King:     .asciiz "King"
 
 ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King
 
+# lo bound doesn't actually work yet
 .macro getRandomInt(%lowerBound, %upperBound)
 	li $v0, 42
-	li $a0, %lowerBound
+	li $a0, 0 
 	li $a1, %upperBound
 	syscall # result is stored in $a0
 .end_macro
@@ -41,10 +42,10 @@ ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack,
 	# quotient is suit(0=H,1=D,2=C,3=S). Register LO
 	# remainder is rank(0=Ace,1-9=1-9,10=J,11=Q,12=K). Register HI
 	li $t0, 13
-	div $v0, $t0
+	div $a0, $t0
 	mflo $t0
 	mfhi $t1
-
+	
 	# find address of suit string in array
 	mul $t0, $t0, 4 # multiply quotient by 4 to find the offset
 	la $a0, suits
@@ -72,7 +73,6 @@ ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack,
 
 main:
 	getCard()
-
-exit:
+	
 	li $v0, 10
 	syscall
