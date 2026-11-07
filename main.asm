@@ -1,6 +1,8 @@
 # black jack program
 # 
 
+.include "blackjackPrompts.asm"
+
 .data
 
 Hearts:   .asciiz "Hearts"
@@ -72,7 +74,8 @@ ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack,
 .text
 
 main:
-	getCard()
-	
+	#getCard()
+	welcome()
+	play()
 	li $v0, 10
 	syscall
