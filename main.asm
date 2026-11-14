@@ -1,6 +1,8 @@
 # black jack program
 # 
 
+.include "blackjackPrompts.asm"
+
 .data
 
 Hearts:   .asciiz "Hearts"
@@ -30,7 +32,7 @@ ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack,
 
 # lo bound doesn't actually work yet
 .macro getRandomInt(%lowerBound, %upperBound)
-	li $v0, 42
+	li $v0, 42 # 42 calls for a random integer
 	li $a0, 0 
 	li $a1, %upperBound
 	syscall # result is stored in $a0
@@ -42,6 +44,8 @@ ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack,
 	# quotient is suit(0=H,1=D,2=C,3=S). Register LO
 	# remainder is rank(0=Ace,1-9=1-9,10=J,11=Q,12=K). Register HI
 	li $t0, 13
+	
+	# $a0 HOLDS the value of getRandomInt(0,52)
 	div $a0, $t0
 	mflo $t0
 	mfhi $t1
@@ -73,6 +77,37 @@ ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack,
 
 main:
 	getCard()
+	welcome()
+	play()
 	
+	# after player inputs value via play() method,
+	# code will jump to either roundLoop, invalid, or exit.
+	beq $s0, 1, roundLoop
+	beq $s0, 2, exit
+	j invalidPlayInput
+	
+roundLoop:
+	# Starting money for player WILL ALWAYS BE $100 (can be changed)
+	li $s1, 100
+	wagerPrompt()
+	
+	# If a user types an integer 
+	blt $s2, 5, invalidWager 
+	
+	# Sets the current turn to player. (represented by integer 1)
+	# the dealer's turn (computers) WILL be represented by integer 2.
+	li $t2, 1
+	
+invalidPlayInput:
+	play()
+	beq $s0, 1, roundLoop
+	beq $s0, 2, exit
+	j invalidPlayInput
+
+invalidWager:
+	wagerPrompt()
+	bge $s2, 5, roundLoop
+	j invalidWager  
+exit:
 	li $v0, 10
 	syscall
