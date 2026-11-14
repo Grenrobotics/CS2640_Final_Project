@@ -28,17 +28,23 @@ King:     .asciiz "King"
 
 ranks:    .word Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King
 
-# lo bound doesn't actually work yet
+# Adrian: I made this macro but it could honestly be moved into the getCard() instead.
 .macro getRandomInt(%lowerBound, %upperBound)
 	li $v0, 42
 	li $a0, 0 
-	li $a1, %upperBound
+	li $t0, %upperBound
+	sub $t0, $t0, %lowerBound
+	move $a1, $t0
 	syscall # result is stored in $a0
+	add $a0, $a0, %lowerBound
+	
 .end_macro
 
-# ISSUE: always prints out spades of 4 even though the random number function is working properly
 .macro getCard()
-	getRandomInt(0,52)
+# suit and rank address are stored inside of $t0 and $t1 currently. 
+# We could store in HI and LO instead maybe.
+
+	getRandomInt(0,51) # range is still 52 distinct numbers
 	# quotient is suit(0=H,1=D,2=C,3=S). Register LO
 	# remainder is rank(0=Ace,1-9=1-9,10=J,11=Q,12=K). Register HI
 	li $t0, 13
