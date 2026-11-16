@@ -156,6 +156,8 @@ roundLoop:
 
         # If a user types an integer
         blt $s2, 5, invalidWager
+        bgt $s2, $s1, invalidWager
+        
 
         # Reset hand totals at start of round
         li $s3, 0
