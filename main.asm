@@ -137,7 +137,7 @@ main:
         li $s3, 0
         li $s4, 0
 
-        # Starting money
+        # Starting balance
         li $s1, 100
 
         welcome()
@@ -150,14 +150,19 @@ main:
         j invalidPlayInput
 
 roundLoop:
-        # Starting money for player WILL ALWAYS BE $100 (can be changed)
-        li $s1, 100
+
+	# Check if user is too broke to play
+	blt $s1, 5, lowBalance
+
+	# Prompt user for wager
         wagerPrompt()
 
         # If a user types an integer
         blt $s2, 5, invalidWager
         bgt $s2, $s1, invalidWager
         
+        # Deduct wagered amount from user's balance
+        sub $s1, $s1, $s2
 
         # Reset hand totals at start of round
         li $s3, 0
@@ -219,6 +224,10 @@ invalidWager:
 drawCard:
         getCard()
         jr $ra
+        
+lowBalance:
+	printLowBalance()
+	j exit
 
 exit:
         li $v0, 10
