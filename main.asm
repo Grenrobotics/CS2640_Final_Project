@@ -1,6 +1,8 @@
-
-# black jack program
-#
+# CS 2640 
+# Name: Logan Quon, Brandon Yoon, Adrian Tapia Ceballos, Zakaria El-Assaad
+# November 15, 2026
+# This is where the MAIN game loop occurs
+# Follows standard blackjack rules
 
 .include "blackjackPrompts.asm"
 

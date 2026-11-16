@@ -1,6 +1,8 @@
-# CS 2640
-# Logan Quon
-# This file contains the prompts the user will see when the game starts
+# CS 2640 
+# Name: Logan Quon, Brandon Yoon, Adrian Tapia Ceballos, Zakaria El-Assaad
+# November 15, 2026
+# This is where most of the prompts for the game are stored
+# to let the user understand the rules of the game and where in the game he/she is at the moment
 .data
 	welcomeMessage: .asciiz "Hello and welcome to BLACKJACK! Step right up to take on the dealer and win some awesome prizes"
 	rule1Message: .asciiz "\nHOW TO PLAY\n1. The objective of the game is to get a higher valued hand than the dealer BUT is less than or equal to 21."
