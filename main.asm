@@ -43,17 +43,19 @@ ofText: .asciiz " of "
         li $v0, 42 # 42 calls for a random integer
         li $a0, 0
         li $a1, %upperBound
+		sub $a1, $a1, %lowerBound
         syscall # result is stored in $a0
+		add $a0, $a0, %lowerBound
 .end_macro
 
 .macro getCard()
-        getRandomInt(0,52)
+        getRandomInt(0,51)
 
         # quotient is suit(0=H,1=D,2=C,3=S). Register LO
         # remainder is rank(0=Ace,1-9=2-10,10=J,11=Q,12=K). Register HI
         li $t0, 13
 
-        # $a0 HOLDS the value of getRandomInt(0,52)
+        # $a0 HOLDS the value of getRandomInt(0,51)
         div $a0, $t0
         mflo $t0
         mfhi $t1
