@@ -15,6 +15,8 @@
 	balanceMessage: .asciiz "\nBalance: $"
 	lowBalanceMessage: .asciiz "\nYou don't have enough money to continue playing. Better luck next time!"
 	wagerPrompt: .asciiz "\n\nHow much do you want to wager? NOTE: you must wager at least $5 to PLAY. "
+
+	hitOrStand: .asciiz "Do you want to hit (draw another card) or do you want to stand (stop drawing cards)?\nPlease type 1 for hit or 2 for stand."
 .macro welcome()
 	# prints welcomeMessage
 	li $v0, 4
@@ -100,6 +102,18 @@
 
 .end_macro
 
+.macro hitOrStandPrompt()
+
+	# prints prompt to either hit or stand
+	li $v0, 4
+	la $a0, hitOrStand
+	syscall
+	
+	# store value into $s5
+	li $v0, 5
+	syscall
+	move $s5, $v0
+.end_macro
 
 .text
 
