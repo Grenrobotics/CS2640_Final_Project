@@ -77,19 +77,13 @@ handValueDone:
         move $a0, $t1
         syscall
 
-        # Print " of "
-        li $v0, 4
-        la $a0, ofText
-        syscall
+		print(" of ")
 
         # print suit
         li $v0, 4
         move $a0, $t0
         syscall
 
-        # Print newline
-        li $v0, 4
-        la $a0, newLine
-        syscall
+		print("\n")
 
 .end_macro
