@@ -31,12 +31,14 @@
 
 	# Prompts user to type in 1 (yes) or no (2)
 	# User will still be prompted until they type 1 or 2.
-	print("\n\nWanna play some Blackjack 1(Yes) 2(No)? Type 1 for yes or 2 for no.")
+	print("\n\nWanna play some Blackjack 1(Yes) 2(No)?: ")
 	
 	# the value of 1 or 2 will be stored in $s0
 	li $v0, 5
 	syscall 
 	move $s0, $v0 
+
+	print("\n")
 .end_macro
 
 .macro printBalance()
@@ -75,7 +77,7 @@
 .macro hitOrStandPrompt()
 
 	# prints prompt to either hit or stand
-	print("Do you want to hit (draw another card) or do you want to stand (stop drawing cards)?\nPlease type 1 for hit or 2 for stand.")
+	print("Do you want to hit or stand?\nPlease type 1 for hit or 2 for stand: ")
 	
 	# store value into $s5
 	li $v0, 5
