@@ -31,7 +31,7 @@
 
 	# Prompts user to type in 1 (yes) or no (2)
 	# User will still be prompted until they type 1 or 2.
-	print("\n\nWanna play some Blackjack 1(Yes) 2(No)? Type 1 for yes or 2 for no."
+	print("\n\nWanna play some Blackjack 1(Yes) 2(No)? Type 1 for yes or 2 for no.")
 	
 	# the value of 1 or 2 will be stored in $s0
 	li $v0, 5
@@ -40,7 +40,7 @@
 .end_macro
 
 .macro printBalance()
-	print("\nBalance: $"
+	print("\nBalance: $")
 	
 	# prints user balance stored in $s1
 	li $v0, 1
@@ -82,6 +82,4 @@
 	syscall
 	move $s5, $v0
 .end_macro
-
-.text
 
