@@ -1,6 +1,8 @@
-# CS 2640
-# Logan Quon
-# This file contains the prompts the user will see when the game starts
+# CS 2640 
+# Name: Logan Quon, Brandon Yoon, Adrian Tapia Ceballos, Zakaria El-Assaad
+# November 15, 2026
+# This is where most of the prompts for the game are stored
+# to let the user understand the rules of the game and where in the game he/she is at the moment
 .data
 	welcomeMessage: .asciiz "Hello and welcome to BLACKJACK! Step right up to take on the dealer and win some awesome prizes"
 	rule1Message: .asciiz "\nHOW TO PLAY\n1. The objective of the game is to get a higher valued hand than the dealer BUT is less than or equal to 21."
@@ -10,7 +12,11 @@
 	rule5Message: .asciiz "\n5. Remember, be strategic. If your hand value is over 21, YOU LOSE the game and your wager."
 	playMessage: .asciiz "\n\nWanna play some Blackjack 1(Yes) 2(No)? Type 1 for yes or 2 for no. "
 	
+	balanceMessage: .asciiz "\nBalance: $"
+	lowBalanceMessage: .asciiz "\nYou don't have enough money to continue playing. Better luck next time!"
 	wagerPrompt: .asciiz "\n\nHow much do you want to wager? NOTE: you must wager at least $5 to PLAY. "
+
+	hitOrStand: .asciiz "Do you want to hit (draw another card) or do you want to stand (stop drawing cards)?\nPlease type 1 for hit or 2 for stand."
 .macro welcome()
 	# prints welcomeMessage
 	li $v0, 4
@@ -57,7 +63,22 @@
 	move $s0, $v0 
 .end_macro
 
+.macro printBalance()
+	li $v0, 4
+	la $a0, balanceMessage
+	syscall
+	
+	# prints user balance stored in $s1
+	li $v0, 1
+	move $a0, $s1
+	syscall
+.end_macro 
+
 .macro wagerPrompt()
+
+	# prints user balance
+	printBalance()
+	
 	li $v0, 4
 	la $a0, wagerPrompt
 	syscall
@@ -66,8 +87,32 @@
 	li $v0, 5
 	syscall
 	move $s2, $v0
+	
+
 .end_macro 
 
+.macro printLowBalance()
+	
+	# prints user balance
+	printBalance()
+	
+	li $v0, 4
+	la $a0, lowBalanceMessage
+	syscall
+
+.end_macro
+
+.macro hitOrStandPrompt()
+
+	# prints prompt to either hit or stand
+	li $v0, 4
+	la $a0, hitOrStand
+	syscall
+	
+	# store value into $s5
+	li $v0, 5
+	syscall
+	move $s5, $v0
+.end_macro
 
 .text
-
