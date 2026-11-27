@@ -37,6 +37,13 @@ playerTotalText: .asciiz "\nPlayer total: "
 dealerTotalText: .asciiz "\nDealer total: "
 newLine: .asciiz "\n"
 ofText: .asciiz " of "
+playerHandText: .asciiz "Your hand is: \n"
+dealerHandText: .asciiz "Dealer hand is: \n"
+bustMessage: .asciiz "\nYou busted!"
+lostMessage: .asciiz "\nYou lost! Try again next time!"
+winMessage: .asciiz "\nYou won! Keep going!"
+pushMessage: .asciiz "\nPush! Dealer and player tie! No money is made or lost!"
+thankYouMessage: .asciiz"\nThanks for playing!"
 
 # lo bound doesn't actually work yet
 .macro getRandomInt(%lowerBound, %upperBound)
@@ -142,26 +149,26 @@ main:
 
         welcome()
         play()
+        
 
         # after player inputs value via play() method,
         # code will jump to either roundLoop, invalid, or exit.
-        # beq $s0, 1, roundLoop
-        # beq $s0, 2, exit
+        beq $s0, 1, roundLoop
+        beq $s0, 2, exit
         jal invalidPlayInput
-
-	# Check if user is too broke to play
-	blt $s1, 5, lowBalance
-
-	# Prompt user for wager
+        
+roundLoop:
+        
+        # Prompt user for wager
         wagerPrompt()
 
         # If a user types an invalid integer (wagers less than $5)
         # stores the constant 5 to be compared with in slt.
         li $s5, 5
-        sgt $t4, $s2, $s5
-        bgt $t4, 0, invalidWager
-roundLoop:
-        
+        blt $s2, $s5, invalidWager
+	# Check if user is too broke to play
+	blt $s1, 5, lowBalance
+	
         # Deduct wagered amount from user's balance
         sub $s1, $s1, $s2
 
@@ -174,6 +181,9 @@ roundLoop:
         li $t2, 1
         
         #Deal 2 cards to player hand
+        li $v0, 4
+        la $a0, playerHandText
+        syscall
         jal drawCard
         jal drawCard
 
@@ -182,18 +192,23 @@ roundLoop:
         li $t2, 2
         
         #Give 2 cards to dealer
+        li $v0, 4
+        la $a0, dealerHandText
+        syscall
         jal drawCard
         jal drawCard
 
         # Print dealer total ONCE player wants to STOP drawing cards 
-        #li $v0, 4
-        #la $a0, dealerTotalText
-        #syscall
+        li $v0, 4
+        la $a0, dealerTotalText
+        syscall
 
 	# Prints out the dealer's cards
-        # li $v0, 1
-        # move $a0, $s4
-        # syscall
+        li $v0, 1
+        move $a0, $s4
+        syscall
+        #Change turn back to player
+        li $t2, 1
         
 	# prints newLine
         li $v0, 4
@@ -215,7 +230,7 @@ playerTurn:
         syscall
         
 	# checks if the PLAYER has busted yet (gets hand value over 21).
-	bgt $s3, 21, gameOver
+	bgt $s3, 21, bust
 	
 	# checks if player achieved 21 or blackjack (face card + ace)
 	beq $s3, 21, gameOver
@@ -234,23 +249,76 @@ playerTurn:
 
         # jumps back up to continue player's turn.
         j playerTurn
+#Tells the user they busted and jumps to lost   
+bust:
+	li $v0, 4
+	la $a0, bustMessage
+	syscall
+	j playerLoss
 gameOver:
+	# If dealer busted, player wins
+	bgt $s4, 21, playerWin
+
+	# If player busted, player loses
+	bgt $s3, 21, playerLoss
+
+	# Compare player and dealer totals
+	beq $s3, $s4, push
+	bgt $s3, $s4, playerWin
+	blt $s3, $s4, playerLoss
+
+
+# Tie game: return original wager
+push:
+	li $v0, 4
+	la $a0, pushMessage
+	syscall
+
+	# Return original wager
+	add $s1, $s1, $s2
+
+	j invalidPlayInput
+
+
+# Player wins: receive double the wager
+playerWin:
+	li $v0, 4
+	la $a0, winMessage
+	syscall
+
+	# Double wager and add to balance
+	mul $t0, $s2, 2
+	add $s1, $s1, $t0
+
+	j invalidPlayInput
+
+
+# Player loses: wager already deducted
+playerLoss:
+	li $v0, 4
+	la $a0, lostMessage
+	syscall
+
+	# No need to subtract wager again
+	j invalidPlayInput
 
 invalidPlayInput:
-        #play()
-        bne $s0, 1, invalidPlayInput
-        bne $s0, 2, invalidPlayInput
-        jr $ra
+        play()
+        beq $s0, 1, roundLoop
+        beq $s0, 2, exit
+        j invalidPlayInput
 # jumps here if player makes invalid wager
 invalidWager:
         wagerPrompt()
         blt $s2, 5, invalidWager
         
         #jumps back to middle of roundLoop once player makes valid wager
-        jr $ra
+        j roundLoop
 # jumps here if the player wants to continue drawing cards.
 playOn:
+	li $t2, 1
 	jal drawCard
+	
 	j playerTurn
 	
 drawCard:
@@ -261,9 +329,43 @@ lowBalance:
 	printLowBalance()
 	j exit
 
-# TO BE IMPLEMENTED (Can someone do this part? Thanks!)
+
 dealerTurn:
+	# Set turn to dealer
+	li $t2, 2
+
+dealerHit:
+	# Dealer must hit until total is at least 17
+	bge $s4, 17, dealerDone
+
+	# Draw another card for dealer
+	jal drawCard
+
+	# Repeat until dealer has 17 or more
+	j dealerHit
+
+dealerDone:
+	# Print dealer total
+	li $v0, 4
+	la $a0, dealerTotalText
+	syscall
+
+	li $v0, 1
+	move $a0, $s4
+	syscall
+
+	# Print newline
+	li $v0, 4
+	la $a0, newLine
+	syscall
+
+	j gameOver
 
 exit:
-        li $v0, 10
+	#Print thank you for playing
+	li $v0, 4
+	la $a0, thankYouMessage
+	syscall
+	#exit
+	li $v0, 10
         syscall
